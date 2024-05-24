@@ -1,6 +1,5 @@
 if vim.g.vscode then
 	-- Hint: use `:h <option>` to figure out the meaning if needed
-	print("using vscode")
 	vim.opt.clipboard = "unnamedplus" -- use system clipboard
 
 	-- Searching
@@ -14,7 +13,6 @@ if vim.g.vscode then
 
 	return
 end
-print("using neovim")
 --[[
 
 =====================================================================
@@ -210,10 +208,10 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
-vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
-vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
-vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+-- vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
+-- vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
+-- vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
+-- vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
 -- Beginning and end of lines
 vim.keymap.set("n", "H", "_", { desc = "Move to beginning of line" })
@@ -276,7 +274,16 @@ require("lazy").setup({
 	-- See `:help gitsigns` to understand what the configuration keys do
 	{ -- Adds git related signs to the gutter, as well as utilities for managing changes
 		"lewis6991/gitsigns.nvim",
-		opts = {},
+		opts = {
+			current_line_blame = true,
+			current_line_blame_opts = {
+				virt_text = true,
+				virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
+				delay = 1000,
+				ignore_whitespace = false,
+				virt_text_priority = 100,
+			},
+		},
 	},
 
 	-- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -370,6 +377,13 @@ require("lazy").setup({
 
 			-- [[ Configure Telescope ]]
 			-- See `:help telescope` and `:help telescope.setup()`
+			local fzf_opts = {
+				fuzzy = true, -- false will only do exact matching
+				override_generic_sorter = true, -- override the generic sorter
+				override_file_sorter = true, -- override the file sorter
+				case_mode = "smart_case", -- or "ignore_case" or "respect_case"
+				-- the default case_mode is "smart_case"
+			}
 			require("telescope").setup({
 				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
@@ -383,6 +397,13 @@ require("lazy").setup({
 				extensions = {
 					["ui-select"] = {
 						require("telescope.themes").get_dropdown(),
+						fzf = fzf_opts,
+					},
+				},
+				pickers = {
+					-- Manually set sorter, for some reason not picked up automatically
+					lsp_dynamic_workspace_symbols = {
+						sorter = require("telescope").extensions.fzf.native_fzf_sorter(fzf_opts),
 					},
 				},
 			})
@@ -603,7 +624,7 @@ require("lazy").setup({
 						python = {
 							analysis = {
 								-- Ignore all files for analysis to exclusively use Ruff for linting
-								ignore = { "*" },
+								-- ignore = { "*" },
 							},
 						},
 					},
@@ -955,7 +976,7 @@ require("lazy").setup({
 	-- require 'kickstart.plugins.lint',
 	require("kickstart.plugins.autopairs"),
 	-- require 'kickstart.plugins.neo-tree',
-	-- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+	require("kickstart.plugins.gitsigns"), -- adds gitsigns recommend keymaps
 
 	-- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
 	--    This is the easiest way to modularize your config.

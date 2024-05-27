@@ -2,6 +2,8 @@ return {
 	{
 		"nvim-tree/nvim-tree.lua",
 		opts = {
+			-- nvim-project settings
+			sync_root_with_cwd = true,
 			update_focused_file = {
 				enable = true,
 				update_cwd = true,

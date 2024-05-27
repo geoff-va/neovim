@@ -10,6 +10,7 @@ if vim.g.vscode then
 
 	vim.keymap.set("n", "H", "_", { desc = "Move to beginning of line" })
 	vim.keymap.set("n", "L", "$", { desc = "Move to end of line" })
+	vim.keymap.set("i", "jj", "<ESC>", { desc = "Exit insert mode" })
 
 	return
 end
@@ -112,6 +113,13 @@ vim.opt.colorcolumn = "100"
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
 vim.keymap.set("n", "<leader>fe", ":NvimTreeToggle<CR>", { desc = "Toggle NvimTreeToggle" })
+
+-- Neovim-project
+vim.keymap.set("n", "<leader>sp", ":Telescope neovim-project discover<CR>", { desc = "[S]earch [P]rojects" })
+vim.keymap.set("n", "<leader>lp", ":NeovimProjectLoadRecent<CR>", { desc = "[L]ast [P]roject" })
+vim.keymap.set("n", "<leader>sl", ":Telescope neovim-project history<CR>", { desc = "[S]ast [L]ast Projects" })
+vim.keymap.set("n", "J", ":bprev<CR>", { desc = "Previous Buffer" })
+vim.keymap.set("n", "K", ":bnext<CR>", { desc = "Next Buffer" })
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -216,6 +224,7 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 -- Beginning and end of lines
 vim.keymap.set("n", "H", "_", { desc = "Move to beginning of line" })
 vim.keymap.set("n", "L", "$", { desc = "Move to end of line" })
+vim.keymap.set("i", "jj", "<ESC>", { desc = "Exit insert mode" })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -411,6 +420,7 @@ require("lazy").setup({
 			-- Enable Telescope extensions if they are installed
 			pcall(require("telescope").load_extension, "fzf")
 			pcall(require("telescope").load_extension, "ui-select")
+			pcall(require("telescope").load_extension, "projects")
 
 			-- See `:help telescope.builtin`
 			local builtin = require("telescope.builtin")
@@ -447,6 +457,30 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sn", function()
 				builtin.find_files({ cwd = vim.fn.stdpath("config") })
 			end, { desc = "[S]earch [N]eovim files" })
+
+			local action_state = require("telescope.actions.state")
+
+			vim.keymap.set("n", "<leader>se", function()
+				builtin.buffers({
+					initial_mode = "normal",
+					attach_mappings = function(prompt_bufnr, map)
+						local delete_buf = function()
+							local current_picker = action_state.get_current_picker(prompt_bufnr)
+							current_picker:delete_selection(function(selection)
+								vim.api.nvim_buf_delete(selection.bufnr, { force = true })
+							end)
+						end
+
+						map("n", "<c-d>", delete_buf)
+
+						return true
+					end,
+				}, {
+					sort_lastused = true,
+					sort_mru = true,
+					theme = "dropdown",
+				})
+			end)
 		end,
 	},
 
@@ -548,7 +582,7 @@ require("lazy").setup({
 
 					-- Opens a popup that displays documentation about the word under your cursor
 					--  See `:help K` for why this keymap.
-					map("K", vim.lsp.buf.hover, "Hover Documentation")
+					map("gh", vim.lsp.buf.hover, "Hover Documentation")
 
 					-- WARN: This is not Goto Definition, this is Goto Declaration.
 					--  For example, in C this would take you to the header.
@@ -908,7 +942,7 @@ require("lazy").setup({
 			-- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
 			-- - sd'   - [S]urround [D]elete [']quotes
 			-- - sr)'  - [S]urround [R]eplace [)] [']
-			require("mini.surround").setup()
+			-- require("mini.surround").setup()
 
 			-- Simple and easy statusline.
 			--  You could remove this setup call if you don't like it,
@@ -944,6 +978,12 @@ require("lazy").setup({
 				additional_vim_regex_highlighting = { "ruby" },
 			},
 			indent = { enable = true, disable = { "ruby" } },
+			-- nvim-project settings
+			sync_root_with_cwd = true,
+			update_focused_file = {
+				enable = true,
+				update_root = true,
+			},
 		},
 		config = function(_, opts)
 			-- [[ Configure Treesitter ]] See `:help nvim-treesitter`

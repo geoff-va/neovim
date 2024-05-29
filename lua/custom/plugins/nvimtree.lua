@@ -47,7 +47,7 @@ return {
 				},
 			},
 			view = {
-				width = 30,
+				width = 35,
 				side = "left",
 			},
 		},

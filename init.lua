@@ -750,7 +750,7 @@ require("lazy").setup({
 				-- languages here or re-enable it for the disabled ones.
 				local disable_filetypes = { c = true, cpp = true }
 				return {
-					timeout_ms = 500,
+					timeout_ms = 2500,
 					lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
 				}
 			end,
@@ -1015,7 +1015,7 @@ require("lazy").setup({
 	require("kickstart.plugins.indent_line"),
 	-- require 'kickstart.plugins.lint',
 	require("kickstart.plugins.autopairs"),
-	-- require 'kickstart.plugins.neo-tree',
+	-- require("kickstart.plugins.neo-tree"),
 	require("kickstart.plugins.gitsigns"), -- adds gitsigns recommend keymaps
 
 	-- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`

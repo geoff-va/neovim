@@ -120,6 +120,7 @@ vim.keymap.set("n", "<leader>lp", ":NeovimProjectLoadRecent<CR>", { desc = "[L]a
 vim.keymap.set("n", "<leader>sl", ":Telescope neovim-project history<CR>", { desc = "[S]ast [L]ast Projects" })
 vim.keymap.set("n", "J", ":bprev<CR>", { desc = "Previous Buffer" })
 vim.keymap.set("n", "K", ":bnext<CR>", { desc = "Next Buffer" })
+vim.keymap.set("n", "<leader>bc", ":bd<CR>", { desc = "Close Current Buffer" })
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -1086,22 +1087,22 @@ vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.s
 -- Lua
 vim.keymap.set("n", "<leader>xx", function()
 	require("trouble").toggle()
-end)
+end, { desc = "Toggle Trouble" })
 vim.keymap.set("n", "<leader>xw", function()
 	require("trouble").toggle("workspace_diagnostics")
-end)
+end, { desc = "Toggle Trouble Workspace Diagnostics" })
 vim.keymap.set("n", "<leader>xd", function()
 	require("trouble").toggle("document_diagnostics")
-end)
+end, { desc = "Toggle Trouble Document Diagnostics" })
 vim.keymap.set("n", "<leader>xq", function()
 	require("trouble").toggle("quickfix")
-end)
+end, { desc = "Toggle Trouble Quickfix" })
 vim.keymap.set("n", "<leader>xl", function()
 	require("trouble").toggle("loclist")
 end)
 vim.keymap.set("n", "gR", function()
 	require("trouble").toggle("lsp_references")
-end)
+end, { desc = "Trouble LSP References" })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

@@ -120,7 +120,7 @@ vim.keymap.set("n", "<leader>lp", ":NeovimProjectLoadRecent<CR>", { desc = "[L]a
 vim.keymap.set("n", "<leader>sl", ":Telescope neovim-project history<CR>", { desc = "[S]ast [L]ast Projects" })
 vim.keymap.set("n", "J", ":bprev<CR>", { desc = "Previous Buffer" })
 vim.keymap.set("n", "K", ":bnext<CR>", { desc = "Next Buffer" })
-vim.keymap.set("n", "<leader>bc", ":bd<CR>", { desc = "Close Current Buffer" })
+vim.keymap.set("n", "<leader>bq", ":bd<CR>", { desc = "Close Current Buffer" })
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -1000,6 +1000,7 @@ require("lazy").setup({
 			--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
 			--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 			--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+			vim.treesitter.language.register("markdown", "octo")
 		end,
 	},
 

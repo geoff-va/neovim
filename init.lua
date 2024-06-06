@@ -108,7 +108,10 @@ P.S. You can delete this when you're done too. It's your config now! :)
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
-vim.opt.colorcolumn = "100"
+vim.opt.colorcolumn = "88"
+vim.opt.textwidth = 88
+vim.opt.wrap = false
+vim.opt.formatoptions = vim.opt.formatoptions - "t"
 
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
@@ -979,12 +982,6 @@ require("lazy").setup({
 				additional_vim_regex_highlighting = { "ruby" },
 			},
 			indent = { enable = true, disable = { "ruby" } },
-			-- nvim-project settings
-			sync_root_with_cwd = true,
-			update_focused_file = {
-				enable = true,
-				update_root = true,
-			},
 		},
 		config = function(_, opts)
 			-- [[ Configure Treesitter ]] See `:help nvim-treesitter`

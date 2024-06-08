@@ -335,6 +335,9 @@ require("lazy").setup({
 				["<leader>h"] = { "Git [H]unk" },
 			}, { mode = "v" })
 		end,
+		opts = {
+			ignore_missing = true,
+		},
 	},
 
 	-- NOTE: Plugins can specify dependencies.

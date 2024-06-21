@@ -549,6 +549,10 @@ require("lazy").setup({
 						vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 					end
 
+					local imap = function(keys, func, desc)
+						vim.keymap.set("i", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
+					end
+
 					map("gl", vim.diagnostic.open_float, "Show Error Information")
 					-- Jump to the definition of the word under your cursor.
 					--  This is where a variable was first declared, or where a function is defined, etc.
@@ -590,6 +594,8 @@ require("lazy").setup({
 					-- Opens a popup that displays documentation about the word under your cursor
 					--  See `:help K` for why this keymap.
 					map("gh", vim.lsp.buf.hover, "Hover Documentation")
+					map("gs", vim.lsp.buf.signature_help, "Signature Documentation")
+					imap("<C-s>", vim.lsp.buf.signature_help, "Signature Documentation")
 
 					-- WARN: This is not Goto Definition, this is Goto Declaration.
 					--  For example, in C this would take you to the header.
@@ -973,8 +979,28 @@ require("lazy").setup({
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
+		event = { "BufReadPre", "BufNewFile" },
+		dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
 		opts = {
-			ensure_installed = { "bash", "c", "diff", "html", "lua", "luadoc", "markdown", "vim", "vimdoc", "python" },
+			ensure_installed = {
+				"bash",
+				"c",
+				"css",
+				"diff",
+				"dockerfile",
+				"go",
+				"html",
+				"javascript",
+				"lua",
+				"luadoc",
+				"json",
+				"markdown",
+				"python",
+				"rust",
+				"vim",
+				"vimdoc",
+				"yaml",
+			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
 			highlight = {

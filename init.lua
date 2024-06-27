@@ -124,6 +124,7 @@ vim.keymap.set("n", "<leader>sl", ":Telescope neovim-project history<CR>", { des
 vim.keymap.set("n", "J", ":bprev<CR>", { desc = "Previous Buffer" })
 vim.keymap.set("n", "K", ":bnext<CR>", { desc = "Next Buffer" })
 vim.keymap.set("n", "<leader>bq", ":bd<CR>", { desc = "Close Current Buffer" })
+vim.keymap.set("n", "<leader>bQ", ":bd!<CR>", { desc = "Close Current Buffer w/o saving" })
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -505,7 +506,12 @@ require("lazy").setup({
 
 			-- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
 			-- used for completion, annotations and signatures of Neovim apis
-			{ "folke/neodev.nvim", opts = {} },
+			{
+				"folke/neodev.nvim",
+				opts = {
+					library = { plugins = { "nvim-dap-ui" }, types = true },
+				},
+			},
 		},
 		config = function()
 			-- Brief aside: **What is LSP?**
@@ -775,7 +781,7 @@ require("lazy").setup({
 				--
 				-- You can use a sub-list to tell conform to run *until* a formatter
 				-- is found.
-				-- javascript = { { "prettierd", "prettier" } },
+				javascript = { { "prettierd", "prettier" } },
 			},
 			formatters = {
 				ruff_organize_imports = {

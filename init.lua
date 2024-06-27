@@ -601,7 +601,7 @@ require("lazy").setup({
 					--  See `:help K` for why this keymap.
 					map("gh", vim.lsp.buf.hover, "Hover Documentation")
 					map("gs", vim.lsp.buf.signature_help, "Signature Documentation")
-					imap("<C-s>", vim.lsp.buf.signature_help, "Signature Documentation")
+					imap("<M-s>", vim.lsp.buf.signature_help, "Signature Documentation")
 
 					-- WARN: This is not Goto Definition, this is Goto Declaration.
 					--  For example, in C this would take you to the header.
@@ -691,6 +691,9 @@ require("lazy").setup({
 					end,
 				},
 				bashls = {},
+				-- Javascript
+				tsserver = {},
+				eslint = {},
 				-- rust_analyzer = {},
 				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 				--
@@ -924,13 +927,14 @@ require("lazy").setup({
 		-- change the command in the config to whatever the name of that colorscheme is.
 		--
 		-- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-		"Mofiqul/dracula.nvim",
+		"folke/tokyonight.nvim",
+		-- "Mofiqul/dracula.nvim",
 		priority = 1000, -- Make sure to load this before all the other start plugins.
 		init = function()
 			-- Load the colorscheme here.
 			-- Like many other themes, this one has different styles, and you could load
 			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("dracula")
+			vim.cmd.colorscheme("tokyonight-night")
 
 			-- You can configure highlights by doing something like:
 			vim.cmd.hi("Comment gui=none")
@@ -942,7 +946,17 @@ require("lazy").setup({
 		"folke/todo-comments.nvim",
 		event = "VimEnter",
 		dependencies = { "nvim-lua/plenary.nvim" },
-		opts = { signs = false },
+		opts = {
+			signs = true,
+			colors = {
+				error = { "DiagnosticError", "ErrorMsg", "#DC2626" },
+				warning = { "DiagnosticWarn", "WarningMsg", "#FBBF24" },
+				info = { "DiagnosticInfo", "#db2580" },
+				hint = { "DiagnosticHint", "#10B981" },
+				default = { "Identifier", "#7C3AED" },
+				test = { "Identifier", "#FF00FF" },
+			},
+		},
 	},
 
 	{ -- Collection of various small independent plugins/modules

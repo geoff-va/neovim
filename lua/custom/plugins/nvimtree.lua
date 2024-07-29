@@ -37,6 +37,10 @@ return {
 	{
 		"nvim-tree/nvim-tree.lua",
 		opts = {
+			live_filter = {
+				prefix = "[FILTER]: ",
+				always_show_folders = false, -- Turn into false from true by default
+			},
 			on_attach = on_attach,
 			-- nvim-project settings
 			sync_root_with_cwd = true,

@@ -44,6 +44,11 @@ return {
 			on_attach = on_attach,
 			-- nvim-project settings
 			sync_root_with_cwd = true,
+			actions = {
+				change_dir = {
+					global = true,
+				},
+			},
 			update_focused_file = {
 				enable = true,
 				update_cwd = false,

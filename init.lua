@@ -858,6 +858,32 @@ require("lazy").setup({
 			local cmp = require("cmp")
 			local luasnip = require("luasnip")
 			luasnip.config.setup({})
+			local s = luasnip.snippet
+			local t = luasnip.text_node
+			local i = luasnip.insert_node
+			luasnip.add_snippets("python", {
+				s("insert_log", {
+					t("log = logging.getLogger(__name__)"),
+				}),
+			})
+
+			-- Python snippet to add import logging
+			luasnip.add_snippets("python", {
+				s("insert_log", {
+					t("log = logging.getLogger(__name__)"),
+				}),
+			})
+
+			-- Json snippet to add a pyrightconfig
+			luasnip.add_snippets("json", {
+				s("pyrightconfig", {
+					t({ "{", '    "venvPath": "' }),
+					i(1, "./venv"),
+					t({ '",', '    "venv": "' }),
+					i(2, "."),
+					t({ '"', "}" }),
+				}),
+			})
 
 			cmp.setup({
 				snippet = {
@@ -1036,7 +1062,7 @@ require("lazy").setup({
 				--  the list of additional_vim_regex_highlighting and disabled languages for indent.
 				additional_vim_regex_highlighting = { "ruby" },
 			},
-			indent = { enable = true, disable = { "ruby" } },
+			indent = { enable = true, disable = { "ruby", "python" } },
 		},
 		config = function(_, opts)
 			-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
@@ -1156,6 +1182,15 @@ end)
 vim.keymap.set("n", "gR", function()
 	require("trouble").toggle("lsp_references")
 end, { desc = "Trouble LSP References" })
+
+local format_sync_grp = vim.api.nvim_create_augroup("goimports", {})
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = "*.go",
+	callback = function()
+		require("go.format").goimports()
+	end,
+	group = format_sync_grp,
+})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

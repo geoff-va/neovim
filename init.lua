@@ -125,8 +125,6 @@ vim.keymap.set("n", "<leader>lp", ":NeovimProjectLoadRecent<CR>", { desc = "[L]a
 vim.keymap.set("n", "<leader>sl", ":Telescope neovim-project history<CR>", { desc = "[S]ast [L]ast Projects" })
 vim.keymap.set("n", "J", ":bprev<CR>", { desc = "Previous Buffer" })
 vim.keymap.set("n", "K", ":bnext<CR>", { desc = "Next Buffer" })
-vim.keymap.set("n", "<leader>bq", ":bd<CR>", { desc = "Close Current Buffer" })
-vim.keymap.set("n", "<leader>bQ", ":bd!<CR>", { desc = "Close Current Buffer w/o saving" })
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -224,10 +222,10 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
--- vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
--- vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
--- vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
--- vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
+vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
+vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
+vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
 -- Beginning and end of lines
 vim.keymap.set("n", "H", "_", { desc = "Move to beginning of line" })
@@ -773,6 +771,11 @@ require("lazy").setup({
 		opts = {
 			notify_on_error = false,
 			format_on_save = function(bufnr)
+				-- Allow for toggling autoformat
+				if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+					return
+				end
+
 				-- Disable "format_on_save lsp_fallback" for languages that don't
 				-- have a well standardized coding style. You can add additional
 				-- languages here or re-enable it for the disabled ones.
@@ -861,11 +864,6 @@ require("lazy").setup({
 			local s = luasnip.snippet
 			local t = luasnip.text_node
 			local i = luasnip.insert_node
-			luasnip.add_snippets("python", {
-				s("insert_log", {
-					t("log = logging.getLogger(__name__)"),
-				}),
-			})
 
 			-- Python snippet to add import logging
 			luasnip.add_snippets("python", {
@@ -878,7 +876,7 @@ require("lazy").setup({
 			luasnip.add_snippets("json", {
 				s("pyrightconfig", {
 					t({ "{", '    "venvPath": "' }),
-					i(1, "./venv"),
+					i(1, "./.venv"),
 					t({ '",', '    "venv": "' }),
 					i(2, "."),
 					t({ '"', "}" }),
@@ -1190,6 +1188,27 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 		require("go.format").goimports()
 	end,
 	group = format_sync_grp,
+})
+
+-- Command to disable autoformat on save
+vim.api.nvim_create_user_command("FormatDisable", function(args)
+	if args.bang then
+		-- FormatDisable! will disable formatting just for this buffer
+		vim.b.disable_autoformat = true
+	else
+		vim.g.disable_autoformat = true
+	end
+end, {
+	desc = "Disable autoformat-on-save",
+	bang = true,
+})
+
+-- Command to enable autoformat
+vim.api.nvim_create_user_command("FormatEnable", function()
+	vim.b.disable_autoformat = false
+	vim.g.disable_autoformat = false
+end, {
+	desc = "Re-enable autoformat-on-save",
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`

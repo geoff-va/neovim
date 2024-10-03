@@ -11,6 +11,30 @@ if vim.g.vscode then
 	vim.keymap.set("n", "H", "_", { desc = "Move to beginning of line" })
 	vim.keymap.set("n", "L", "$", { desc = "Move to end of line" })
 	vim.keymap.set("i", "jj", "<ESC>", { desc = "Exit insert mode" })
+	vim.keymap.set("n", "gr", function()
+		require("vscode").call("references-view.findReferences")
+	end)
+	vim.keymap.set("n", ",rn", function()
+		require("vscode").call("editor.action.rename")
+	end)
+	vim.keymap.set("n", ",lg", function()
+		require("vscode").call("lazygit.openLazygit")
+	end)
+	vim.keymap.set("n", ",fe", function()
+		require("vscode").call("workbench.explorer.fileView.focus")
+	end)
+	vim.keymap.set("n", "J", function()
+		require("vscode").call("workbench.action.previousEditor")
+	end)
+	vim.keymap.set("n", "K", function()
+		require("vscode").call("workbench.action.nextEditor")
+	end)
+	vim.keymap.set("n", ",sf", function()
+		require("vscode").call("workbench.action.quickOpen")
+	end)
+	vim.keymap.set("n", ",sg", function()
+		require("vscode").call("workbench.action.findInFiles")
+	end)
 
 	return
 end
@@ -255,6 +279,28 @@ if not vim.loop.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
+-- show filename first in telescope results with paths
+local function filenameFirst(_, path)
+	local tail = vim.fs.basename(path)
+	local parent = vim.fs.dirname(path)
+	if parent == "." then
+		return tail
+	end
+	return string.format("%s\t\t%s", tail, parent)
+end
+
+-- Not certain what this does exactly, but used from here in telescope filenameFirst
+-- https://github.com/nvim-telescope/telescope.nvim/issues/2014#issuecomment-1873229658
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "TelescopeResults",
+	callback = function(ctx)
+		vim.api.nvim_buf_call(ctx.buf, function()
+			vim.fn.matchadd("TelescopeParent", "\t\t.*$")
+			vim.api.nvim_set_hl(0, "TelescopeParent", { link = "Comment" })
+		end)
+	end,
+})
+
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run
@@ -412,6 +458,7 @@ require("lazy").setup({
 				--     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
 				--   },
 				-- },
+
 				extensions = {
 					["ui-select"] = {
 						require("telescope.themes").get_dropdown(),
@@ -425,6 +472,7 @@ require("lazy").setup({
 					},
 					find_files = {
 						find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
+						path_display = filenameFirst,
 					},
 				},
 			})

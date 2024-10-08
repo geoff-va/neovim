@@ -474,6 +474,9 @@ require("lazy").setup({
 						find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
 						path_display = filenameFirst,
 					},
+					live_grep = {
+						path_display = filenameFirst,
+					},
 				},
 			})
 

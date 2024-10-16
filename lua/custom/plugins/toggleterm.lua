@@ -3,6 +3,7 @@ return {
 	version = "*",
 	opts = {
 		open_mapping = [[<C-\>]],
+		insert_mappings = false,
 		autochdir = true,
 		size = function(term)
 			if term.direction == "horizontal" then

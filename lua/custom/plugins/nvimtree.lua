@@ -25,7 +25,7 @@ local function on_attach(bufnr)
 	end
 
 	local function live_grep()
-		telescope.live_grep({ search_dirs = { node_dir_path() } })
+		telescope.live_grep({ search_dirs = { node_dir_path() }, additional_args = { "--no-ignore" } })
 	end
 
 	api.config.mappings.default_on_attach(bufnr)

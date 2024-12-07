@@ -5,7 +5,7 @@ return {
 		"neovim/nvim-lspconfig",
 		"nvim-treesitter/nvim-treesitter",
 	},
-	enabled = false,
+	enabled = true,
 	config = function()
 		require("go").setup({})
 		require("lspconfig").gopls.setup({})

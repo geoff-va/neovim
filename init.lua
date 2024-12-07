@@ -144,9 +144,6 @@ vim.g.maplocalleader = ","
 vim.keymap.set("n", "<leader>fe", ":NvimTreeToggle<CR>", { desc = "Toggle NvimTreeToggle" })
 
 -- Neovim-project
-vim.keymap.set("n", "<leader>sp", ":Telescope neovim-project discover<CR>", { desc = "[S]earch [P]rojects" })
-vim.keymap.set("n", "<leader>lp", ":NeovimProjectLoadRecent<CR>", { desc = "[L]ast [P]roject" })
-vim.keymap.set("n", "<leader>sl", ":Telescope neovim-project history<CR>", { desc = "[S]ast [L]ast Projects" })
 vim.keymap.set("n", "J", ":bprev<CR>", { desc = "Previous Buffer" })
 vim.keymap.set("n", "K", ":bnext<CR>", { desc = "Next Buffer" })
 
@@ -234,7 +231,7 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 --
--- vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+vim.keymap.set("t", "<c-q>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -453,11 +450,17 @@ require("lazy").setup({
 				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
 				--
-				-- defaults = {
-				--   mappings = {
-				--     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-				--   },
-				-- },
+				defaults = {
+					layout_strategy = "vertical",
+					layout_config = {
+						mirror = true,
+						vertical = { width = 0.9 },
+						-- other layout configuration here
+					},
+					-- mappings = {
+					-- 	i = { ["<c-enter>"] = "to_fuzzy_refine" },
+					-- },
+				},
 
 				extensions = {
 					["ui-select"] = {
@@ -483,7 +486,6 @@ require("lazy").setup({
 			-- Enable Telescope extensions if they are installed
 			pcall(require("telescope").load_extension, "fzf")
 			pcall(require("telescope").load_extension, "ui-select")
-			pcall(require("telescope").load_extension, "projects")
 
 			-- See `:help telescope.builtin`
 			local builtin = require("telescope.builtin")

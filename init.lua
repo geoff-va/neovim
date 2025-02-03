@@ -4,13 +4,14 @@ if vim.g.vscode then
 
 	-- Searching
 	vim.opt.incsearch = true -- search as characters are entered
-	vim.opt.hlsearch = false -- do not highlight matches
+	-- vim.opt.hlsearch = false -- do not highlight matches
 	vim.opt.ignorecase = true -- ignore case in searches by default
 	vim.opt.smartcase = true -- but make it case sensitive if an uppercase is entered
 
 	vim.keymap.set("n", "H", "_", { desc = "Move to beginning of line" })
 	vim.keymap.set("n", "L", "$", { desc = "Move to end of line" })
 	vim.keymap.set("i", "jj", "<ESC>", { desc = "Exit insert mode" })
+	vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 	vim.keymap.set("n", "gr", function()
 		require("vscode").call("references-view.findReferences")
 	end)
@@ -18,7 +19,10 @@ if vim.g.vscode then
 		require("vscode").call("editor.action.rename")
 	end)
 	vim.keymap.set("n", ",lg", function()
-		require("vscode").call("lazygit.openLazygit")
+		require("vscode").call("lazygit-vscode.toggle")
+	end)
+	vim.keymap.set("n", "<leader>ca", function()
+		require("vscode").call("edit.action.refactor", { silent = true })
 	end)
 	vim.keymap.set("n", ",fe", function()
 		require("vscode").call("workbench.explorer.fileView.focus")
@@ -135,8 +139,6 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
 vim.opt.colorcolumn = "88"
-vim.opt.textwidth = 88
-vim.opt.wrap = false
 vim.opt.formatoptions = vim.opt.formatoptions - "t"
 
 vim.g.mapleader = ","
@@ -233,6 +235,8 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 --
 vim.keymap.set("t", "<c-q>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
+-- Format selection
+vim.keymap.set("v", "<leader>fs", vim.lsp.buf.format, { desc = "[F]ormat [S]election" })
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
@@ -323,7 +327,17 @@ require("lazy").setup({
 	--    require('Comment').setup({})
 
 	-- "gc" to comment visual regions/lines
-	{ "numToStr/Comment.nvim", opts = {} },
+	{
+		"numToStr/Comment.nvim",
+		opts = {
+			toggler = {
+				line = "<leader><space>",
+			},
+			opleader = {
+				line = "<leader><space>",
+			},
+		},
+	},
 
 	-- Here is a more advanced example where we pass configuration
 	-- options to `gitsigns.nvim`. This is equivalent to the following Lua:
@@ -478,6 +492,9 @@ require("lazy").setup({
 						path_display = filenameFirst,
 					},
 					live_grep = {
+						path_display = filenameFirst,
+					},
+					lsp_references = {
 						path_display = filenameFirst,
 					},
 				},
@@ -739,9 +756,9 @@ require("lazy").setup({
 						},
 					},
 				},
-				ruff_lsp = {
+				ruff = {
 					on_attach = function(client, bufnr)
-						if client.name == "ruff_lsp" then
+						if client.name == "ruff-lsp" then
 							-- Disable hover in favor of Pyright
 							client.server_capabilities.hoverProvider = false
 						end
@@ -749,7 +766,7 @@ require("lazy").setup({
 				},
 				bashls = {},
 				-- Javascript
-				tsserver = {},
+				ts_ls = {},
 				eslint = {},
 				-- rust_analyzer = {},
 				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -846,7 +863,7 @@ require("lazy").setup({
 				--
 				-- You can use a sub-list to tell conform to run *until* a formatter
 				-- is found.
-				javascript = { { "prettierd", "prettier" } },
+				javascript = { "prettierd", "prettier", stop_after_first = true },
 			},
 			formatters = {
 				ruff_organize_imports = {
@@ -862,12 +879,6 @@ require("lazy").setup({
 						"-",
 					},
 					stdin = true,
-					-- NOTE: Can't get this part to work - says conform.util not found
-					-- cwd = require("conform.util").root_file({
-					-- 	"pyproject.toml",
-					-- 	"ruff.toml",
-					-- 	".ruff.toml",
-					-- }),
 				},
 			},
 		},
@@ -1082,27 +1093,21 @@ require("lazy").setup({
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-		event = { "BufReadPre", "BufNewFile" },
-		dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
+		main = "nvim-treesitter.configs", -- Sets main module to use for opts
+		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 		opts = {
 			ensure_installed = {
 				"bash",
 				"c",
-				"css",
 				"diff",
-				"dockerfile",
-				"go",
 				"html",
-				"javascript",
 				"lua",
 				"luadoc",
-				"json",
 				"markdown",
-				"python",
-				"rust",
+				"markdown_inline",
+				"query",
 				"vim",
 				"vimdoc",
-				"yaml",
 			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
@@ -1113,25 +1118,69 @@ require("lazy").setup({
 				--  the list of additional_vim_regex_highlighting and disabled languages for indent.
 				additional_vim_regex_highlighting = { "ruby" },
 			},
-			indent = { enable = true, disable = { "ruby", "python" } },
+			indent = { enable = true, disable = { "ruby" } },
 		},
-		config = function(_, opts)
-			-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-
-			-- Prefer git instead of curl in order to improve connectivity in some environments
-			require("nvim-treesitter.install").prefer_git = true
-			---@diagnostic disable-next-line: missing-fields
-			require("nvim-treesitter.configs").setup(opts)
-
-			-- There are additional nvim-treesitter modules that you can use to interact
-			-- with nvim-treesitter. You should go explore a few and see what interests you:
-			--
-			--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-			--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-			--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-			vim.treesitter.language.register("markdown", "octo")
-		end,
+		-- There are additional nvim-treesitter modules that you can use to interact
+		-- with nvim-treesitter. You should go explore a few and see what interests you:
+		--
+		--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
+		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
+		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
+
+	-- { -- Highlight, edit, and navigate code
+	-- 	"nvim-treesitter/nvim-treesitter",
+	-- 	build = ":TSUpdate",
+	-- 	event = { "BufReadPre", "BufNewFile" },
+	-- 	dependencies = { "nvim-treesitter/nvim-treesitter-textobjects" },
+	-- 	opts = {
+	-- 		ensure_installed = {
+	-- 			"bash",
+	-- 			"c",
+	-- 			"css",
+	-- 			"diff",
+	-- 			"dockerfile",
+	-- 			"go",
+	-- 			"html",
+	-- 			"javascript",
+	-- 			"lua",
+	-- 			"luadoc",
+	-- 			"json",
+	-- 			"markdown",
+	-- 			"python",
+	-- 			"rust",
+	-- 			"vim",
+	-- 			"vimdoc",
+	-- 			"yaml",
+	-- 		},
+	-- 		-- Autoinstall languages that are not installed
+	-- 		auto_install = true,
+	-- 		highlight = {
+	-- 			enable = true,
+	-- 			-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
+	-- 			--  If you are experiencing weird indenting issues, add the language to
+	-- 			--  the list of additional_vim_regex_highlighting and disabled languages for indent.
+	-- 			additional_vim_regex_highlighting = { "ruby" },
+	-- 		},
+	-- 		indent = { enable = true, disable = { "ruby", "python" } },
+	-- 	},
+	-- 	config = function(_, opts)
+	-- 		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+	--
+	-- 		-- Prefer git instead of curl in order to improve connectivity in some environments
+	-- 		require("nvim-treesitter.install").prefer_git = true
+	-- 		---@diagnostic disable-next-line: missing-fields
+	-- 		require("nvim-treesitter.configs").setup(opts)
+	--
+	-- 		-- There are additional nvim-treesitter modules that you can use to interact
+	-- 		-- with nvim-treesitter. You should go explore a few and see what interests you:
+	-- 		--
+	-- 		--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
+	-- 		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
+	-- 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+	-- 		vim.treesitter.language.register("markdown", "octo")
+	-- 	end,
+	-- },
 
 	-- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and

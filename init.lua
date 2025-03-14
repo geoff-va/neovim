@@ -39,6 +39,12 @@ if vim.g.vscode then
 	vim.keymap.set("n", ",sg", function()
 		require("vscode").call("workbench.action.findInFiles")
 	end)
+	vim.keymap.set("n", ",ws", function()
+		require("vscode").call("workbench.action.showAllSymbols")
+	end)
+	vim.keymap.set("n", ",sw", function()
+		require("vscode").call("workbench.action.gotoSymbol")
+	end)
 
 	return
 end
